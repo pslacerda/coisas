@@ -8,3 +8,4 @@ Coisas do Passado
 * **gauss.c**  _2010, 1_: Resolve sistemas de equações usando o método de gauss.
 * **cramer.f** _2010, 2_: Resolve sistemas de equações usando a regra de Cramer.
 (lixo)
+
