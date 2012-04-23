@@ -7,6 +7,6 @@ Um simplório servidor http 1.0 multithread com suporte ao método GET e alguns 
 Execução
 --------
 
-    $ cd simplehttp10server
+    $ cd SimpleHTTPServer
     $ javac *.java
     $ java Server
