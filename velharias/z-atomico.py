@@ -5,7 +5,7 @@
 #	Encontra a camada mais energética de um átomo a partir de seu
 #	número atômico Z. Facilmente expandível para camada mais externa.
 #
-# Autor: Pedro Sousa Lacerda, 2010
+# Autor: Pedro Sousa Lacerda, 2009
 
 z = int(raw_input('Z: '))
 
