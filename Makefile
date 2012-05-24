@@ -4,7 +4,7 @@ clean:
 	rm -f *.o *~ grav calc
 
 %.o: %.asm
-	nasm -f elf32 -p macros.i $*.asm -o $*.o
+	nasm -f elf32 -p macros.i -p io.i $*.asm -o $*.o
 
 %.dbg: %.o utils.o io.o
 	gcc -nostartfiles -g -m32 -o $* *.o

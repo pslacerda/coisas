@@ -33,11 +33,10 @@
   %endrep 
 %endmacro
 
-
 %macro  pop 1-* 
-  %rep %0 
+  %rep  %0 
+        pop    %1 
   %rotate 1 
-        pop     %1 
   %endrep 
 %endmacro
 

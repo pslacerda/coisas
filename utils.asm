@@ -28,7 +28,6 @@
 section .text
 	global strlen
 	global exit
-	global exit_fail
 
 ;;; 
 ;;; int strlen(str)
@@ -45,7 +44,7 @@ strlen:
 	end
 
 ;;;
-;;; void exit(return_code)
+;;; void exit(status)
 ;;; 	Sai do programa.
 ;;;
 exit:

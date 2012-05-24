@@ -27,64 +27,100 @@ section .data
 section .bss
 section .text
 
+global creat
 global read
 global readln
 global write
 global writeln
 
+extern exit
+
+
 ;;;
-;;; void read(file, buffer, n)
-;;; 	Lê `n` caracteres do arquivo `file`.
+;;; int create(pathname, mode)
+;;;	Cria um arquivo.
+;;;
+creat:
+	enter	0, 0
+	push	eax, ebx, ecx
+	
+	mov	eax, SYS_CREAT	;
+	mov	ebx, [ebp +  8]	; pathname
+	mov	ecx, [ebp + 12]	; mode
+	int	80h		;
+
+	pop	ecx, ebx, eax
+	leave
+	ret
+
+;;;
+;;; void close(fd)
+;;;	Fecha o arquivo `fd`.
+;;; 
+close:
+	enter	0, 0
+	push	eax, ebx
+
+	mov	eax, 0x6
+	mov	ebx, dword[ebp +  8]
+	int	80h
+
+	pop	ebx, eax
+	leave
+	ret
+
+;;;
+;;; void read(fp, buf, count)
+;;; 	Lê `count` caracteres do arquivo `fp`.
 ;;; 
 read:
 	enter 	0, 0
 	push	eax, ebx, ecx, edx
-	
-	mov	eax, SYS_READ	; indica sys_read
+
+	mov	eax, SYS_READ	;
 	mov	ebx, [ebp + 8]	; arquivo para leitura
 	mov	ecx, [ebp + 12]	; buffer para salvar
 	mov	edx, [ebp + 16]	; número de caracteres a ser lido
 	int	80h		;
 
-	pop	edx, ecx, ebx, eax	
+	pop	edx, ecx, ebx, eax
 	leave
 	ret
 
 ;;;
-;;; uint32 readln(file, buffer, count)
+;;; int readln(fp, buf, count)
 ;;; 	Lê uma linha terminada por '\n' ou, no máximo, `count` caracteres
-;;; 	do arquivo `file` e os salva em `buffer`. Retorna a quantidade de
-;;; 	caracteres lidos.
+;;; 	do arquivo `fp` e os salva em `buf`. Adiciona '\0' ao final da
+;;; 	string e retorna a quantidade de caracteres lidos.
 ;;;
 readln:
 	enter 	0, 0
-	push	ecx, edx
-	
-	mov	eax, 0		; contador
-	lea	edx, [ebp + 12] ; ponteiro p/ buffer
+
+	mov	ecx, 1		; contador
+	mov	edx, [ebp + 12] ; ponteiro p/ buffer
 .loop:
 	;; Contador atingiu `count`?
-	cmp	eax, [ebp + 16]
+	cmp	ecx, [ebp + 16]
 	je	.exit
 	
 	;; Leia 1 byte.
-	lea	edx, [ebp + 12]
 	push	1		; quantidade de bytes
 	push	edx		; endereço do buffer
 	push	dword[ebp + 8]	; descritor do arquivo
 	call	read		;
 
 	;; Se foi lido '\n' vá embora.
-	cmp	byte[ebp + 12], 10
+	cmp	byte[edx], 10
 	je	.exit
 
 	;; Looooop!
-	inc	eax		; incremente contador
-	inc	dword[ebp + 12]	; incremente apondador do buffer
+	inc	ecx		; incremente contador
+	inc	edx		; incremente apondador do buffer
 	jmp	.loop
 .exit:
-	;mov	byte[ebp + 12], 0 ; adicione '\0' ao final
-
+	mov	byte[edx], 0	; adicione '\0' ao final
+	mov	eax, ecx
+	
 	pop	edx, ecx
 	leave
 	ret
@@ -95,7 +131,7 @@ readln:
 ;;; 
 write:
 	enter	0, 0
-	push	ebx
+	push	eax, ebx, ecx, edx
 	
 	mov	eax, SYS_WRITE
 	mov	ebx, [ebp + 8]
@@ -103,7 +139,7 @@ write:
 	mov	edx, [ebp + 16]
 	int	80h
 
-	pop	ebx
+	pop	edx, ecx, ebx, eax
 	leave
 	ret
 
@@ -115,6 +151,7 @@ write:
 ;;;
 writeln:
 	enter	4, 0
+	push	eax
 	
 	;; Escreve a string do `buf`.
 	push	dword[ebp + 16]
@@ -131,6 +168,7 @@ writeln:
 	push	eax
 	push	dword[ebp + 8]
 	call	write
-	
+
+	pop	eax
 	leave
 	ret
