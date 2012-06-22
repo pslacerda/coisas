@@ -1,3 +1,4 @@
+
 build: link
 
 compile:
@@ -8,3 +9,7 @@ link: compile
 
 clean:
 	rm -f grav *~ *.o
+
+show-lines:	
+	cat * | sed s/\	//g | grep -v \; | awk 'NF' |  wc -l
+
