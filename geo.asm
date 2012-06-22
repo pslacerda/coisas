@@ -9,6 +9,21 @@ _coord_buf	resb 255
 
 
 [section .text]
+
+;;;
+;;; geo.read_coord
+;;; 	Parse a line into a Coordinate structure.
+;;; args:
+;;;     + file descriptor
+;;;     + pointer to structure
+;;;     + max degree
+;;;	+ orientation ('N'| 'E')
+;;;	+ orientation ('S', 'W')
+;;; ret:
+;;;     Nothing
+;;; err:
+;;;	Overflow flag set on parser error. Carry flag set on other errors.
+;;; 
 PROC geo.read_coord, 0, 24
 	%define $fp		[ebp + 8]
 	%define $locale		[ebp + 12]
