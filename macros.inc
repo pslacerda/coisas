@@ -1,14 +1,28 @@
-%ifndef IO
-%define IO
-;'
+%ifndef MACROS
+%define MACROS
 
-%define SYS_CREAT  8
-%define SYS_READ   3
-%define SYS_WRITE  4
+struc Coordinate
+	.degrees:	resb 1
+	.minutes:	resb 1
+	.orientation:	resb 1
+endstruc
+
+struc Locale
+	.name:		resb	30
+	.latitude:	resb	3
+	.longitude:	resb	3
+endstruc
+
+
+%define SYS_EXIT  1
+%define SYS_READ  3
+%define SYS_WRITE 4
+%define SYS_CLOSE 6
+%define SYS_CREAT 8
 
 %define STDIN  0
 %define STDOUT 1
-
+%define STDERR 2
 
 ;; Oflag values for open().  POSIX Table 6-4.
 %define O_CREAT        0q0100    ; creat file if it doesnt exist
@@ -39,4 +53,33 @@
 %define S_IWOTH        0q002 ; others have write permission
 %define S_IXOTH        0q001 ; others have execute permission
 
-%endif
+%imacro PROC 3
+	%define $stack_unwind %3
+	%1:
+	%push %1
+	enter %2, 0
+%endmacro
+
+%imacro ENDPROC 0
+	%pop
+%endmacro
+
+%imacro EXIT 0
+	leave
+	ret $stack_unwind
+%endmacro
+
+%imacro PUSH 1-* 
+	%rep %0 
+		push %1 
+	%rotate	1
+	%endrep 
+%endmacro
+
+%imacro POP 1-* 
+    %rep %0 
+        pop	%1 
+	%rotate	1
+	%endrep 
+%endmacro
+%endif ; MACROS

@@ -1,101 +1,63 @@
- ;; 
- ;; io.asm
- ;; 
- ;; Copyright (c) 2012 Pedro Lacerda
- ;; 
- ;; Permission is hereby granted, free of charge, to any person obtaining a copy
- ;; of this software and associated documentation files (the "Software"), to deal
- ;; in the Software without restriction, including without limitation the rights
- ;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- ;; copies of the Software, and to permit persons to whom the Software is
- ;; furnished to do so, subject to the following conditions:
- ;; 
- ;; The above copyright notice and this permission notice shall be included in
- ;; all copies or substantial portions of the Software.
- ;; 
- ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- ;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- ;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- ;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- ;; THE SOFTWARE.
+%ifndef __IO
+%define __IO
 
-%include "macros.i"
+%include "macros.inc"
 
-section .data
-section .bss
-section .text
+%include "str.asm"
+%include "sys.asm"
 
-global creat
-global read
-global readln
-global write
-global writeln
 
-extern exit
-
+[section .text]
 
 ;;;
-;;; int create(pathname, mode)
-;;;	Cria um arquivo.
-;;;
-creat:
-	enter	0, 0
-	push	eax, ebx, ecx
+;;; io.read
+;;; 	Read a string from file descriptor into a buffer.
+;;; args:
+;;;     + file descriptor
+;;;     + buffer
+;;;     + max number of chars to read
+;;; ret:
+;;;     Length of readen string. On error, -1 is returned.
+;;; 
+
+PROC io.read, 0, 12
+	%define $fp	[ebp + 8]
+	%define $buf	[ebp + 12]
+	%define $count	[ebp + 16]
 	
-	mov	eax, SYS_CREAT	;
-	mov	ebx, [ebp +  8]	; pathname
-	mov	ecx, [ebp + 12]	; mode
-	int	80h		;
-
-	pop	ecx, ebx, eax
-	leave
-	ret
+	push	ebx
+	
+	mov	eax, $count
+	dec	eax
+	mov	ebx, $buf
+	mov	byte [ebx + eax], 0
+	
+	push	eax, dword $buf, dword $fp
+	call	sys.read
+	jc	.error
+	
+	clc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	pop	ebx
+	exit
+ENDPROC
 
 ;;;
-;;; void close(fd)
-;;;	Fecha o arquivo `fd`.
+;;; sys.readln
+;;; 	Read a line from file descriptor into a buffer.
+;;; args:
+;;;     + file descriptor
+;;;     + buffer
+;;;     + max number of chars to read
+;;; ret:
+;;;     Length of string. On error, -1 is returned.
 ;;; 
-close:
-	enter	0, 0
-	push	eax, ebx
-
-	mov	eax, 0x6
-	mov	ebx, dword[ebp +  8]
-	int	80h
-
-	pop	ebx, eax
-	leave
-	ret
-
-;;;
-;;; void read(fp, buf, count)
-;;; 	Lê `count` caracteres do arquivo `fp`.
-;;; 
-read:
-	enter 	0, 0
-	push	eax, ebx, ecx, edx
-
-	mov	eax, SYS_READ	;
-	mov	ebx, [ebp + 8]	; arquivo para leitura
-	mov	ecx, [ebp + 12]	; buffer para salvar
-	mov	edx, [ebp + 16]	; número de caracteres a ser lido
-	int	80h		;
-
-	pop	edx, ecx, ebx, eax
-	leave
-	ret
-
-;;;
-;;; int readln(fp, buf, count)
-;;; 	Lê uma linha terminada por '\n' ou, no máximo, `count` caracteres
-;;; 	do arquivo `fp` e os salva em `buf`. Adiciona '\0' ao final da
-;;; 	string e retorna a quantidade de caracteres lidos.
-;;;
-readln:
-	enter 	0, 0
-
+PROC io.readln, 0, 12
+	push	ebx, ecx, edx
+	
 	mov	ecx, 1		; contador
 	mov	edx, [ebp + 12] ; ponteiro p/ buffer
 .loop:
@@ -106,69 +68,104 @@ readln:
 	;; Leia 1 byte.
 	push	1		; quantidade de bytes
 	push	edx		; endereço do buffer
-	push	dword[ebp + 8]	; descritor do arquivo
-	call	read		;
+	push	dword [ebp + 8]	; descritor do arquivo
+	call	sys.read		;
+	jc	.error
 
 	;; Se foi lido '\n' vá embora.
-	cmp	byte[edx], 10
+	cmp	byte [edx], 10
 	je	.exit
 
 	;; Looooop!
 	inc	ecx		; incremente contador
 	inc	edx		; incremente apondador do buffer
 	jmp	.loop
+.error:
+	pop	edx, ecx, ebx
+	stc	
+	exit
 .exit:
-	mov	byte[edx], 0	; adicione '\0' ao final
+	mov	byte [edx], 0	; adicione '\0' ao final
 	mov	eax, ecx
 	
-	pop	edx, ecx
-	leave
-	ret
+	pop	edx, ecx, ebx
+	clc
+	exit
+ENDPROC
 
 ;;;
-;;; void write(fd, buf, count)
-;;;	Escreve em `fd` `count` caracteres apontados por `buf`.
-;;; 
-write:
-	enter	0, 0
-	push	eax, ebx, ecx, edx
+;;; sys.write
+;;;	Write a NULL terminated string to file descriptor.
+;;; args:
+;;;     + file descriptor
+;;;     + string
+;;; ret:
+;;;     Number of bytes written. On error, -1 is returned.
+;;;
+PROC io.write, 0, 12
 	
-	mov	eax, SYS_WRITE
-	mov	ebx, [ebp + 8]
-	mov	ecx, [ebp + 12]
-	mov	edx, [ebp + 16]
-	int	80h
-
-	pop	edx, ecx, ebx, eax
-	leave
-	ret
-
-
-;;;
-;;; void writeln(fd, buf, count)
-;;;	Escreve em `fd` `count` caracteres apontados por `buf` e
-;;; 	insere '\n' ao final.
-;;;
-writeln:
-	enter	4, 0
-	push	eax
+	push	dword [ebp + 12]
+	call	str.len
 	
-	;; Escreve a string do `buf`.
-	push	dword[ebp + 16]
-	push	dword[ebp + 12]
-	push	dword[ebp + 8]
-	call	write
-
-	;; Põe '\n' num buffer local e salva seu endereço.
-	mov	dword[ebp - 4], 10
-	lea	eax, [ebp - 4]
-
-	;; Escreve '\n'.
-	push	1
 	push	eax
-	push	dword[ebp + 8]
-	call	write
+	push	dword [ebp + 12]
+	push	dword [ebp + 8]
+	call	sys.write
+	
+	cmp	eax, -1
+	je	.error
+	clc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	exit
+ENDPROC
 
-	pop	eax
-	leave
-	ret
+;;;
+;;; sys.writeln
+;;;	Write a NULL terminated string to file descriptor and breaks a line.
+;;; args:
+;;;     + file descriptor
+;;;     + string
+;;; ret:
+;;;     Number of bytes written. On error, -1 is returned.
+;;;
+PROC io.writeln, 1, 8
+	%define $fd	[ebp + 8]
+	%define $str	[ebp + 12]
+	%define $nl	[ebp - 1]
+	
+	push	ebx
+	mov	ebx, 0	; bytes written
+	
+	;; Write string
+	push	dword $str, dword $fd
+	call	io.write
+	cmp	eax, -1
+	je	.error
+	add	ebx, eax
+	
+	;; Store '\n' into memory
+	mov	byte $nl, 10
+	lea	eax, $nl
+	
+	;; Write '\n'
+	push	1, eax, dword $fd
+	call	sys.write
+	cmp	eax, -1
+	je	.error
+	add	ebx, eax
+	
+	;; Return bytes written
+	mov	eax, ebx
+	stc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	pop	ebx
+	exit
+ENDPROC
+
+%endif

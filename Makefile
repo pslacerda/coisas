@@ -1,13 +1,16 @@
-all: grav calc
+FASMLIB:= ./fasmlib-0.8.0
+
+compile:
+	nasm -f dbg -g -f elf grav.asm -o grav.o
+
+link: compile
+	ld -m elf_i386 -e _start grav.o -o grav
+
+link-debug:
+	gcc -nostartfiles -m32 *.o  -o grav
+
+build: link
+debug: link-debug
 
 clean:
-	rm -f *.o *~ grav calc
-
-%.o: %.asm
-	nasm -f elf32 -p macros.i -p io.i $*.asm -o $*.o
-
-%.dbg: %.o utils.o io.o
-	gcc -nostartfiles -g -m32 -o $* *.o
-
-%: %.o utils.o io.o
-	ld -m elf_i386 -s -o $* *.o
+	rm -f grav *~ *.o

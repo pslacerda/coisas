@@ -1,69 +1,85 @@
 
-struc Coordinate
-	.degrees:	resb 1
-	.minutes:	resb 1
-	.orientation:	resb 1
-endstruc
+%include "macros.inc"
 
-struc Locale
-	.name:		resb	30
-	.latitude:	resb	3
-	.longitude:	resb	3
-endstruc
+%include "str.asm"
+%include "sys.asm"
+%include "io.asm"
 
-%include "macros.i"
+%include "geo.asm"
 
-extern exit
-extern creat
-extern read
-extern readln
-extern write
-extern writeln
-
-section .bss
-	
-section .data
-	filename	times 254 db ' '
-	filenamelen	dw 0
-	
-	msg1		db "Arquivo de coordenadas ou <ENTER> para abandonar	: "
-	msg1len		dw $-msg1
-
-section .text
-	global _start
-
+global _start
+[section .text]
 _start:
-;;;
-;;;	Pede o nome do arquivo para gravação de coordenadas das localidades.
-;;; 
-	;; Escreve a deixa.
-	push	dword[msg1len], msg1, STDOUT
-	call	write
 
-	;; Lê o nome do arquivo.
-	push	dword[filenamelen], filename, STDIN
-	call	readln
+;;; Pedir o nome do arquivo para gravação de coordenadas das localidades
+	;; Write prompt
+    	push	_prompt1, STDOUT
+    	call	io.write
+    	jc	error
+    	
+    	;; Read filename
+    	push	255, _filename, STDIN
+    	call	io.readln
+    	jc	error
+    	
+    	cmp	eax, 1
+    	je	quit
+    	
+;;; Criar o arquivo de saída com o nome fornecido
+;	push	S_IRUSR | S_IWUSR, _filename
+;	call	sys.creat
+;	jc	error
+
+;;; Pedir o nome da localidade
+	;; Write prompt
+	push	_prompt2, STDOUT
+	call	io.write
+	jc	error
 	
-	;; Salva a quantidade de caracteres que o nome do arquivo ocupa.
-	mov	dword[filenamelen], eax
-
-	;; Usuário digitou apenas <ENTER>. Saia.
-	cmp	eax, 0
+	;; Read locale name
+	push	30, _locale + Locale.name, STDIN
+	call	io.readln
+	jc	error
+	
+	cmp	eax, 1
 	je	quit
 
-;;;
-;;; Criar o arquivo de saída com o nome fornecido
-;;;
-	push	S_IRUSR | S_IWUSR, filename
-	call	creat
+;;; Pedir a latitude da localidade em graus, minutos e orientação
+	;; Write prompt
+	push	_prompt3, STDOUT
+	call	io.write
+	jc	error
 	
-;;;
-;;; Pede o nome da localidade.
-;;;
+	push	90, _locale + Locale.latitude, STDIN
+	call	geo.read_coordinate
 	
-	
-;;;
-;;; Sai do programa.
 quit:
-	push	0
-	call	exit
+	push	eax
+	call	sys.exit
+
+error:
+;	push	STDERR, _err
+;	call	io.write
+;	
+;	push	STDERR, eax
+;	call	io.writeln
+	
+	push	_err
+	call	io.write
+	
+	push	1
+	call	sys.exit
+
+
+[section .data]
+_err		db 10,27,"[1;31mError!",27,"[0m",10,0
+_prompt1	db "Arquivo de coordenadas, ou ENTER para abortar: ", 0
+_prompt2	db "Nome da localidade                           : ", 0
+_prompt3	db "Latitude <graus, minutos, orientação>        : ", 0
+_prompt4	db "Coordenadas <graus, minutos, orientação>     : ", 0
+_test		db "  	abc", 0
+
+[section .bss]
+_filename	resb 255
+_filehandle	resd 1
+_locale		resb 36
