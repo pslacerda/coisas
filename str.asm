@@ -8,7 +8,7 @@
 ;;; str.len
 ;;; 	Calculate the length of a NULL terminated string.
 ;;; args:
-;;;     - string pointer
+;;;     + string pointer
 ;;; ret:
 ;;;     string length
 ;;;
@@ -33,7 +33,7 @@ ENDPROC
 ;;; str.skip_spaces
 ;;; 	Skips blank chars.
 ;;; args:
-;;;     - string pointer
+;;;     + string pointer
 ;;; ret:
 ;;;     A pointer to the end of blanks.
 ;;;
@@ -77,8 +77,9 @@ PROC str.atoi, 0, 4
 	push	dword [ebp + 8]
 	call	str.skip_spaces
 	
-	mov	esi, eax	;string pointer
-	mov	ecx, 0		;counter
+	mov	esi, [ebp + 8]	;string pointer
+	sub	eax, esi
+	mov	ecx, eax	;counter
 	mov	eax, 0		;acumulator
 	
 	;save counter
