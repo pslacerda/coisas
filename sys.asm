@@ -6,7 +6,7 @@
 ;;; sys.exit
 ;;;     Terminate the program.
 ;;; args:
-;;;     - return code
+;;;     + return code
 ;;;
 PROC sys.exit, 0, 4
 	mov	ebx, [ebp + 8]
