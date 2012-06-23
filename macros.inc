@@ -1,5 +1,5 @@
-%ifndef MACROS
-%define MACROS
+%ifndef __MACROS
+%define __MACROS
 
 struc Coordinate
 	.degrees:	resb 1
