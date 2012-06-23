@@ -2,7 +2,6 @@
 %include "macros.inc"
 %include "io.asm"
 %include "str.asm"
-%include "sys.asm"
 
 [section .bss]
 _coord_buf	resb 255

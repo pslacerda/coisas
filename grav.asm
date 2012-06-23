@@ -1,7 +1,6 @@
 
 %include "macros.inc"
 
-%include "str.asm"
 %include "sys.asm"
 %include "io.asm"
 
