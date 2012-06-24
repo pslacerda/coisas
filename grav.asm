@@ -30,9 +30,9 @@ _start:
 	mov	[_filehandle], eax
 
 next_locale:
-;;; Clear locale variable
+;;; Clean locale variable
 	mov	edi, _locale
-	mov	edx, 36
+	mov	ecx, 36
 	mov	eax, 0
 	rep	stosb
 
