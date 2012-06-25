@@ -10,6 +10,9 @@ global _start
 [section .text]
 _start:
 	clc
+	push	_header, STDOUT
+	call	io.write
+	
 .ask_filename:
 	;; Write prompt
     	push	_prompt1, STDOUT
@@ -59,6 +62,9 @@ _start:
 
 
 [section .data]
+_header		db 27,"[1;32mUniversidade Federal da Bahia",10
+		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
+
 _err0		db 10,27,"[1;31mError!",27,"[0m",10,0
 _prompt1	db "Arquivo de coordenadas, ou ENTER para abortar: ", 0
 
