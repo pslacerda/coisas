@@ -102,7 +102,7 @@ ENDPROC
 ;;; ret:
 ;;;     Number of bytes written. On error, -1 is returned.
 ;;;
-PROC io.write, 0, 12
+PROC io.write, 0, 8
 	
 	push	dword [ebp + 12]
 	call	str.len
