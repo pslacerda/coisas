@@ -31,8 +31,8 @@ PROC sys.creat, 0, 8
 	mov	eax, SYS_CREAT
 	int	80h
 	
-	cmp	eax, -1
-	je	.error
+	cmp	eax, 0
+	jl	.error
 	clc
 	jmp	.quit
 .error:
@@ -59,8 +59,8 @@ PROC sys.open, 0, 8
 	mov	eax, SYS_OPEN
 	int	80h
 	
-	cmp	eax, -1
-	je	.error
+	cmp	eax, 0
+	jl	.error
 	clc
 	jmp	.quit
 .error:
@@ -85,8 +85,8 @@ PROC sys.close, 0, 4
 	mov	eax, SYS_CLOSE
 	int	80h
 	
-	cmp	eax, -1
-	je	.error
+	cmp	eax, 0
+	jl	.error
 	clc
 	jmp	.quit
 .error:
@@ -115,8 +115,8 @@ PROC sys.read, 0, 12
 	mov	eax, SYS_READ
 	int	80h
 	
-	cmp	eax, -1
-	je	.error
+	cmp	eax, 0
+	jl	.error
 	clc
 	jmp	.quit
 .error:
@@ -145,7 +145,7 @@ PROC sys.write, 0, 12
 	mov	eax, SYS_WRITE
 	int	80h
 	
-	cmp	eax, -1	; some error?
+	cmp	eax, 0	; some error?
 	jl	.error
 	clc
 	jmp	.quit
@@ -173,7 +173,7 @@ PROC sys.access, 0, 12
 	mov	eax, SYS_ACCESS
 	int	80h
 	
-	cmp	eax, -1
+	cmp	eax, 0
 	jl	.error
 	clc
 	jmp	.quit
