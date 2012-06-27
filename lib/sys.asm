@@ -43,6 +43,34 @@ PROC sys.creat, 0, 8
 ENDPROC
 
 ;;;
+;;; sys.open
+;;;	Open a file.
+;;; args:
+;;; 	+ filename
+;;;	+ flags
+;;; ret:
+;;;     A new file descriptor or -1 if an error ocurred.
+;;; 
+PROC sys.open, 0, 8
+	push	ebx
+
+	mov	ebx, [ebp +  8]
+	mov	ecx, [ebp + 12]
+	mov	eax, SYS_OPEN
+	int	80h
+	
+	cmp	eax, -1
+	je	.error
+	clc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	pop	ebx
+	exit
+ENDPROC
+
+;;;
 ;;; sys.close
 ;;;	Close a file.
 ;;; args:
@@ -57,7 +85,7 @@ PROC sys.close, 0, 4
 	mov	eax, SYS_CLOSE
 	int	80h
 	
-	cmp	eax, 0
+	cmp	eax, -1
 	je	.error
 	clc
 	jmp	.quit
@@ -117,7 +145,7 @@ PROC sys.write, 0, 12
 	mov	eax, SYS_WRITE
 	int	80h
 	
-	cmp	eax, 0	; some error?
+	cmp	eax, -1	; some error?
 	jl	.error
 	clc
 	jmp	.quit
