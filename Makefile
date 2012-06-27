@@ -1,8 +1,7 @@
-
 %.o: %.asm
-	nasm -I lib/ -f dbg -g -f elf $@ -o $^
+	nasm -I lib/ -f dbg -g -f elf $< -o $@
 %: %.o
-	ld -m elf_i386 -e _start $@ -o $^
+	ld -m elf_i386 -e _start $< -o $@
 
 clean:
 	rm -f grav calc *~ *.o
