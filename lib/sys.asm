@@ -52,7 +52,7 @@ ENDPROC
 ;;;     A new file descriptor or -1 if an error ocurred.
 ;;; 
 PROC sys.open, 0, 8
-	push	ebx
+	push	ebx, ecx
 
 	mov	ebx, [ebp +  8]
 	mov	ecx, [ebp + 12]
@@ -66,7 +66,7 @@ PROC sys.open, 0, 8
 .error:
 	stc
 .quit:
-	pop	ebx
+	pop	ecx, ebx
 	exit
 ENDPROC
 
@@ -153,6 +153,34 @@ PROC sys.write, 0, 12
 	stc
 .quit:
 	pop	edx, ecx, ebx
+	exit
+ENDPROC
+
+;;;
+;;; sys.access
+;;;	Check user's permissions for a file
+;;; args:
+;;;     + filename
+;;;     + mode
+;;; ret:
+;;;     0 for success, -1 for error.
+;;;
+PROC sys.access, 0, 12
+	push	ebx, ecx
+	
+	mov	ebx, [ebp + 8]
+	mov	ecx, [ebp + 12]
+	mov	eax, SYS_ACCESS
+	int	80h
+	
+	cmp	eax, -1
+	jl	.error
+	clc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	pop	ecx, ebx
 	exit
 ENDPROC
 
