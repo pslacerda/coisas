@@ -159,7 +159,7 @@ PROC io.writeln, 1, 8
 	
 	;; Return bytes written
 	mov	eax, ebx
-	stc
+	clc
 	jmp	.quit
 .error:
 	stc
