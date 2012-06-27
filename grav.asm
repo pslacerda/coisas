@@ -65,7 +65,7 @@ _start:
 _header		db 27,"[1;32mUniversidade Federal da Bahia",10
 		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
 
-_err0		db 10,27,"[1;31mError!",27,"[0m",10,0
+_err0		db 10,27,"[1;31mErro!",27,"[0m",10,0
 _prompt1	db "Arquivo de coordenadas, ou ENTER para abortar: ", 0
 
 [section .bss]
