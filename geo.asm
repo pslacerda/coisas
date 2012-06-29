@@ -205,9 +205,9 @@ ENDPROC
 
 [segment .data]
 _geo_err1	db 27,"[1;31mDados inválidos!",27,"[0m",10, 0
-_geo_prompt1	db "Nome da localidade: ", 0
-_geo_prompt2	db "Latitude <graus, minutos, orientação>: ", 0
-_geo_prompt3	db "Longitude <graus, minutos, orientação>: ", 0
+_geo_prompt1	db "    Nome                              : ", 0
+_geo_prompt2	db "    Lat.  <graus, minutos, orientação>: ", 0
+_geo_prompt3	db "    Long. <graus, minutos, orientação>: ", 0
 
 [section .bss]
 _coord_buf	resb 255

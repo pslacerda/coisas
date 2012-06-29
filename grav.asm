@@ -10,8 +10,9 @@ global _start
 [section .text]
 _start:
 	clc
-	push	_header, STDOUT
+	push	_header1, STDOUT
 	call	io.write
+	jc	.error
 	
 .ask_filename:
 	;; Write prompt
@@ -33,6 +34,11 @@ _start:
 	mov	[_filehandle], eax
 
 .ask_locale:
+	;; Write header
+	push	_header2, STDOUT
+	call	io.write
+	jc	.error
+	
 	push	_locale
 	call	geo.ask_locale
 	jc	.error
@@ -51,7 +57,7 @@ _start:
 	jmp	.terminate
 .error:
 	mov	ebx, 1
-	push	_err0, STDERR
+	push	_err1, STDERR
 	call	io.write
 .terminate:
 	push	dword [_filehandle]
@@ -62,11 +68,11 @@ _start:
 
 
 [section .data]
-_header		db 27,"[1;32mUniversidade Federal da Bahia",10
+_header1	db 27,"[1;32mUniversidade Federal da Bahia",10
 		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
-
-_err0		db 10,27,"[1;31mErro!",27,"[0m",10,0
-_prompt1	db "Arquivo de coordenadas, ou ENTER para abortar: ", 0
+_header2	db 27,"[1;34m  Nova localidade (↵ encerra):",27,"[0m",10, 0
+_err1		db 10,27,"[1;31mErro!",27,"[0m",10,0
+_prompt1	db "Arquivo de coordenadas (↵ encerra): ", 0
 
 [section .bss]
 _filename	resb 255
