@@ -27,7 +27,7 @@ endstruc
 ;;;	+ bytes reserved for local variables
 ;;;	+ bytes used by function's parameters
 ;;; usage:
-;;;	PROC sum, 4, 8
+;;;	PROC sum, 0, 8
 ;;;	    mov eax, [ebp + 8]
 ;;;	    add	eax, [ebp + 12]
 ;;;	    exit
