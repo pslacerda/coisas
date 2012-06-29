@@ -1,6 +1,9 @@
 %ifndef __BULK
 %define __BULK
 
+%include "io.asm"
+%include "sys.asm"
+
 [section .text]
 
 ;;;
@@ -11,34 +14,38 @@
 ;;; ret:
 ;;;     Nothing
 ;;; 
-PROC modes.bulk, 0, 4
+PROC modes.bulk, (255 + 8), 4
+	
+	%define $inf		[ebp - 4]
+	%define $outf		[ebp - 8]
+	%define $buf		[ebp - (255 + 8)]
 	
 	;; Open input file
 	push	O_RDONLY, dword [ebp + 8]
 	call	sys.open
 	jc	.error
-	mov	[_bulk_inf], eax
+	mov	$inf, eax
 	
 	;; Ask output file
-	push	255, _bulk_buffer, STDIN
+	push	255, dword $buf, STDIN
 	call	io.readln
 	jc	.error
 	
 	;; Write to STDOUT if no filename given
-	mov	dword [_bulk_outf], 1
+	mov	dword $outf, STDOUT
 	cmp	eax, 1
 	jmp	.write_header
 	
 	;; Create output file
-	push	S_IRUSR | S_IWUSR, _buffer
+	push	S_IRUSR | S_IWUSR, dword $buf
 	call	sys.creat
 	jc	.error
 	
 	;; Open output file
-	push	O_WRONLY, _buffer
+	push	O_WRONLY, dword $buf
 	call	sys.open
 	jc	.error
-	mov	[_bulk_outf], eax
+	mov	$outf, eax
 	
 .write_header:
 	
@@ -46,15 +53,10 @@ PROC modes.bulk, 0, 4
 .error:
 	stc
 .quit:
-	pop	ecx, edi
 	exit
 ENDPROC
 
 [section .data]
-
-[section .bss]
-_bulk_buffer	resb 255
-_bulk_inf	resd 1
-_bulk_outf	resd 1
-
+_bulk_exit	db "Não implementado", 0
+_bulk_
 %endif
