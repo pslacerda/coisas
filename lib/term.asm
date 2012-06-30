@@ -3,8 +3,15 @@
 
 %include "io.asm"
 
+;;;
+;;; term.clear
+;;; 	Clear the terminal. The terminal must support ANSI/VT100+ escape sequences.
+;;; 
+
 [section .text]
 PROC term.clear, 0, 0
+	push	eax
+	
 	push	_term_clear, STDOUT
 	call	io.write
 	jc	.error
@@ -13,6 +20,7 @@ PROC term.clear, 0, 0
 .error:
 	stc
 .quit:
+	pop	eax
 	exit
 ENDPROC
 
