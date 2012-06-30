@@ -3,7 +3,7 @@
 
 %include "io.asm"
 
-
+[section .text]
 PROC term.clear, 0, 0
 	push	_term_clear, STDOUT
 	call	io.write
