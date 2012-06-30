@@ -6,6 +6,7 @@
 
 [section .text]
 PROC modes.interactive, 0, 4
+	stc
 	exit
 ENDPROC
 
