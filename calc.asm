@@ -11,13 +11,13 @@ global _start
 [section .text]
 _start:
 	clc
-	push	_header, STDOUT
+	push	_header1, STDOUT
 	call	io.write
 	
 .ask_origin:
 	;; Write prompt
 	push	_prompt1, STDOUT
-	call	io.writeln
+	call	io.write
 	jc	.error
 	;; Ask origin
 	push	_origin
@@ -25,7 +25,7 @@ _start:
 	jc	.error
 	jo	.quit
 
-.decide_if_bulk_or_interactive:
+.decide_bulk_or_interactive:
 	;; Write prompt
 	push	_prompt2, STDOUT
 	call	io.write
@@ -34,14 +34,14 @@ _start:
 	push	30, _buffer, STDIN
 	call	io.readln
 	jc	.error
-	;; Quit in case of empty input
+	;; Quit if empty input
 	cmp	eax, 1
 	je	.quit
 	;; Try to open the input file
-	push	S_IRUSR, _buffer
+	push	R_OK, _buffer
 	call	sys.access
-.bla:
-	;; If the file exists goto bulk mode, goto interactive otherwise
+	
+	;; Go to bulk mode if file exists, interactive mode otherwise
 	cmp	eax, 0
 	je	.bulk_mode
 	jmp	.interactive_mode
@@ -63,21 +63,19 @@ _start:
 	jmp	.terminate
 .error:
 	mov	ebx, 1
-	push	_err0, STDERR
+	push	_err1, STDERR
 	call	io.write
-.terminate:
-;	push	dword [_filehandle]
-;	call	sys.close
 	
+.terminate:
 	push	ebx
 	call	sys.exit
 
 [section .data]
-_header		db 27,"[1;32mUniversidade Federal da Bahia",10
+_header1	db 27,"[1;32mUniversidade Federal da Bahia",10
 		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
-_err0		db 10,27,"[1;31mErro!",27,"[0m",10,0
-_prompt1	db "Dados da origem (RET termina)", 0
-_prompt2	db "Arquivo de coordenadas ou nome de localidade (RET termina): ", 0
+_err1		db 10,27,"[1;31mErro!",27,"[0m",10,0
+_prompt1	db "Informe a origem (↵ encerra): ", 10, 0
+_prompt2	db 10, "Arquivo de coordenadas ou destino (↵ encerra) : ", 0
 
 [section .bss]
 _origin		resb 36
