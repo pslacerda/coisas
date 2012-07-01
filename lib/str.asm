@@ -124,4 +124,47 @@ PROC str.atoi, 0, 4
 	pop	ecx, ebx, esi
 	exit
 ENDPROC
+
+;;;
+;;; str.itoa
+;;;	Converts an unsigned integer to a null terminated decimal string.
+;;; args:
+;;;	+ value
+;;;	+ string whit at least 11 bytes long
+;;; ret:
+;;;	Pointer to string, same as second parameter.
+;;;
+PROC str.itoa, 0, 8
+	push	ebx, ecx, edx, edi
+	
+	mov	eax, [ebp + 8]		; value
+	mov	edi, [ebp + 12]		; str
+	
+	mov	ebx, 10			; number 10
+	mov	ecx, 0			; counter
+	
+.divloop:
+	mov	edx, 0
+	div	ebx
+	add	edx, '0'
+	push	edx
+	inc	ecx
+	cmp	eax, 0
+	jg	.divloop
+	
+.popout:
+	pop	edx
+	mov	byte [edi], dl
+	dec	ecx
+	inc	edi
+	cmp	ecx, 0
+	jg	.popout
+	
+.exit:
+	mov	byte [edi], 0
+	mov	eax, [ebp + 12]
+	pop	edi, edx, ecx, ebx
+	exit
+ENDPROC
+
 %endif
