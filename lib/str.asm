@@ -30,6 +30,58 @@ PROC str.len, 0, 4
 ENDPROC
 
 ;;;
+;;; str.rjust
+;;; 	Overlaps, right justified, the second string on the first. The first
+;;;	must be bigger or of the same size of second.
+;;; args:
+;;;     + first string
+;;;	+ second string
+;;;
+PROC str.rjust, 4, 8
+	%define $str1	[ebp + 8]
+	%define $str2	[ebp + 12]
+	
+	%define $len1	[ebp - 4]
+	%define $len2	[ebp - 8]
+	
+	push	ecx, edi, esi
+	
+	;; Get $str1 length
+	push	dword $str1
+	call	str.len
+	mov	$len1, eax
+	
+	;; Get $str2 length and throw an error if greater than $str1
+	push	dword $str2
+	call	str.len
+	cmp	$len1, eax
+	jb	.error
+	mov	$len2, eax
+	
+	;; Difference between $len1 and $len2
+	mov	eax, $len1
+	sub	eax, $len2
+	
+	;; Points ESI to $str2 and EDI to ($str1 + difference)
+	mov	esi, $str2
+	mov	edi, $str1
+	add	edi, eax
+	
+	;; Overlaps $str2 over $str1
+	mov	ecx, $len2
+	rep movsb
+	
+	clc
+	jmp	.exit
+.error:
+	stc
+.exit:
+	pop	esi, edi, ecx
+	exit
+ENDPROC
+
+
+;;;
 ;;; str.skip_spaces
 ;;; 	Skips blank chars.
 ;;; args:
@@ -150,7 +202,7 @@ PROC str.itoa, 0, 8
 	push	edx
 	inc	ecx
 	cmp	eax, 0
-	jg	.divloop
+	ja	.divloop
 	
 .popout:
 	pop	edx
@@ -158,7 +210,7 @@ PROC str.itoa, 0, 8
 	dec	ecx
 	inc	edi
 	cmp	ecx, 0
-	jg	.popout
+	ja	.popout
 	
 .exit:
 	mov	byte [edi], 0
