@@ -73,6 +73,7 @@ PROC str.copy, 0, 8
 	rep movsb
 	
 	pop	esi, edi, ecx
+	exit
 ENDPROC
 
 
@@ -93,6 +94,7 @@ PROC str.ncopy, 0, 12
 	rep movsb
 	
 	pop	esi, edi, ecx
+	exit
 ENDPROC
 
 
