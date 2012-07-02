@@ -5,7 +5,7 @@
 %include "sys.asm"
 
 [section .text]
-PROC modes.interactive, 0, 4
+PROC modes.interactive, 0, 8
 	stc
 	exit
 ENDPROC
