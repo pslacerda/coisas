@@ -54,6 +54,50 @@ PROC str.fill, 0, 12
 ENDPROC
 
 ;;;
+;;; str.copy
+;;;	Copy a string
+;;; args:
+;;;	+ source string
+;;;	+ destine string
+;;;
+PROC str.copy, 0, 8
+	push	ecx, edi, esi
+	
+	mov	esi, [ebp + 8]
+	mov	edi, [ebp + 12]
+	
+	push	esi
+	call	str.len
+	
+	mov	ecx, eax
+	rep movsb
+	
+	pop	esi, edi, ecx
+ENDPROC
+
+
+;;;
+;;; str.ncopy
+;;;	Copy n bytes from a string
+;;; args:
+;;;	+ source string
+;;;	+ destine string
+;;;	+ number of bytes
+;;;
+PROC str.ncopy, 0, 12
+	push	ecx, edi, esi
+	
+	mov	esi, [ebp + 8]
+	mov	edi, [ebp + 12]
+	mov	ecx, [ebp + 16]
+	rep movsb
+	
+	pop	esi, edi, ecx
+ENDPROC
+
+
+
+;;;
 ;;; str.rjust
 ;;; 	Overlaps, right justified, the second string on the first. The first
 ;;;	must be bigger or of the same size of second.
