@@ -30,6 +30,30 @@ PROC str.len, 0, 4
 ENDPROC
 
 ;;;
+;;; str.fill
+;;; 	Fill a buffer with a constant value.
+;;; args:
+;;;     + buffer
+;;;	+ length
+;;;	+ value, a byte packed into a dword
+;;; ret:
+;;;	Pointer to string, same as first parameter.
+;;;
+PROC str.fill, 0, 12
+	push	ecx, edi
+	
+	mov	edi, [ebp + 8]
+	mov	ecx, [ebp + 12]
+	mov	eax, [ebp + 16]
+	rep	stosb
+	mov	byte [edi-1], 0
+	mov	eax, [ebp + 8]
+	
+	pop	edi, ecx
+	exit
+ENDPROC
+
+;;;
 ;;; str.rjust
 ;;; 	Overlaps, right justified, the second string on the first. The first
 ;;;	must be bigger or of the same size of second.
@@ -80,6 +104,50 @@ PROC str.rjust, 4, 8
 	exit
 ENDPROC
 
+;;;
+;;; str.ljust
+;;; 	Overlaps, left justified, the second string on the first. The first
+;;;	must be bigger or of the same size of second.
+;;; args:
+;;;     + first string
+;;;	+ second string
+;;;
+PROC str.ljust, 4, 8
+	%define $str1	[ebp + 8]
+	%define $str2	[ebp + 12]
+	
+	%define $len1	[ebp - 4]
+	%define $len2	[ebp - 8]
+	
+	push	ecx, edi, esi
+	
+	;; Get $str1 length
+	push	dword $str1
+	call	str.len
+	mov	$len1, eax
+	
+	;; Get $str2 length and throw an error if greater than $str1
+	push	dword $str2
+	call	str.len
+	cmp	$len1, eax
+	jb	.error
+	mov	$len2, eax
+	
+	;; Overlaps $str2 over $str1
+	mov	esi, $str2
+	mov	edi, $str1
+	mov	ecx, $len2
+	dec	ecx
+	rep movsb
+	
+	clc
+	jmp	.exit
+.error:
+	stc
+.exit:
+	pop	esi, edi, ecx
+	exit
+ENDPROC
 
 ;;;
 ;;; str.skip_spaces
