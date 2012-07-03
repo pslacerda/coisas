@@ -88,6 +88,7 @@ endstruc
 %define SYS_OPEN	5
 %define SYS_CLOSE	6
 %define SYS_CREAT	8
+%define SYS_LSEEK	19
 %define SYS_ACCESS	33
 
 ; Standart devices.

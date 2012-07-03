@@ -184,4 +184,36 @@ PROC sys.access, 0, 12
 	exit
 ENDPROC
 
+;;;
+;;; sys.lseek
+;;;	Reposition read/write file offset
+;;; args:
+;;;     + file descriptor
+;;;     + offset
+;;;	+ whence
+;;; ret:
+;;;     Upon successful completion, returns the resulting offset location as
+;;;	measured in bytes from the beginning of the file.  On error, a value
+;;;	below 0 is returned and CF is set.
+;;;
+PROC	sys.lseek, 0, 12
+	push	ebx, ecx, edx
+	
+	mov	ebx, [ebp + 8]
+	mov	ecx, [ebp + 12]
+	mov	edx, [ebp + 16]
+	mov	eax, SYS_LSEEK
+	int	80h
+	
+	cmp	eax, 0
+	jl	.error
+	clc
+	jmp	.quit
+.error:
+	stc
+.quit:
+	pop	edx, ecx, ebx
+	exit
+ENDPROC
+
 %endif
