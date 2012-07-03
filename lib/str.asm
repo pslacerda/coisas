@@ -333,4 +333,24 @@ PROC str.itoa, 0, 8
 	exit
 ENDPROC
 
+;;;
+;;; str.ftoa
+;;;	Converts an float to a null terminated decimal string.
+;;; args:
+;;;	+ value
+;;;	+ string whit at least 11 bytes long
+;;; ret:
+;;;	Pointer to string, same as second parameter.
+;;;
+PROC str.ftoa, 0, 8
+	push	dword [ebp + 12], dword [ebp + 8]
+	call	str.itoa
+	jc	.error
+	clc
+	jmp	.exit
+.error:
+	stc
+.exit:
+	exit
+ENDPROC
 %endif
