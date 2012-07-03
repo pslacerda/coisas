@@ -1,6 +1,7 @@
 TODO List
 =========
 
-+ make real code in geo.calculate_distances
-+ implement GeoCalc spec 7 on modes.bulk
++ put real code in str.ftoa
++ put real code in geo.calculate_distances
++ GeoCalc spec 7, what to do at end of modes.bulk?
 
