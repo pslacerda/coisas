@@ -1,3 +1,6 @@
+%ifndef __GEO
+%define __GEO
+
 %include "macros.inc"
 %include "io.asm"
 %include "str.asm"
@@ -203,6 +206,191 @@ PROC geo.ask_locale, 0, 4
 	exit
 ENDPROC
 
+;;;
+;;; geo.format_coord
+;;;	Format coordinates to print.
+;;; args:
+;;;	+ pointer to coordinates
+;;;	+ output buffer (a least 9 bytes)
+;;; ret:
+;;;	Pointer to output buffer
+;;;
+PROC geo.format_coord, 0, 4
+	
+	%define $coord		[ebp + 8]
+	%define $output		[ebp + 12]
+	
+	%define $buf1	_geo_format_coord_buffer1
+	%define $buf2	_geo_format_coord_buffer2
+	
+	push	edi, esi
+	
+;; Format degrees
+	;setup
+	mov	esi, $coord
+	add	esi, Coordinate.degrees
+	mov	edi, $output
+	
+	;convert degrees to string
+	movzx	eax, byte [esi]
+	push	dword $buf1, eax
+	call	str.itoa
+	jc	.error
+	
+	;fill $buf2 with spaces
+	push	' ', 4, dword $buf2
+	call	str.fill
+	
+	;format
+	push	dword $buf1, dword $buf2
+	call	str.rjust
+	jc	.error
+	
+	;write output
+	push	3, edi, dword $buf2
+	call	str.ncopy
+
+;; Format minutes
+	;setup
+	mov	esi, $coord
+	add	esi, Coordinate.minutes
+	mov	edi, $output
+	add	edi, 3
+	
+	;convert degrees to string
+	movzx	eax, byte [esi]
+	push	dword $buf1, eax
+	call	str.itoa
+	jc	.error
+	
+	;fill $buf2 with spaces
+	push	' ', 4, dword $buf2
+	call	str.fill
+	
+	;format
+	push	dword $buf1, dword $buf2
+	call	str.rjust
+	jc	.error
+	
+	;write output
+	push	3, edi, dword $buf2
+	call	str.ncopy
+
+;; Format orientation
+	;setup
+	mov	esi, $coord
+	add	esi, Coordinate.orientation
+	mov	edi, $output
+	add	edi, 3 + 3
+	
+	;get orientation
+	mov	al, [esi]
+	
+	;write output
+	mov	byte [edi + 0], ' '
+	mov	byte [edi + 1], al
+	
+	clc
+.error:
+	stc
+.exit:
+	mov	eax, [ebp + 12]
+	pop	esi, edi
+	clc
+	exit
+ENDPROC
+
+
+;;;
+;;; geo.print_locale
+;;; 	Print a locale to a file.
+;;; args:
+;;;     + file descriptor
+;;;     + pointer to locale structure
+;;; 
+PROC geo.print_locale, 0, 8
+	
+	%define $fp		[ebp + 8]
+	%define $locale		[ebp + 12]
+	
+	%define $buf1		_geo_print_locale_buffer1
+	%define $buf2		_geo_print_locale_buffer2
+	
+	push	ecx, edi, esi
+	
+;; Print name
+	;setup
+	mov	esi, $locale
+	add	esi, Locale.name
+	
+	;copy name into $buf1
+	push	30, dword $buf1, esi
+	call	str.ncopy
+	mov	byte [$buf1 + 31], 0	; add \0 at end
+	
+	;fill $buf2 with spaces
+	push	' ', 31, $buf2
+	call	str.fill
+	
+	;format
+	push	$buf1, $buf2
+	call	str.ljust
+	jc	.error
+	
+	;print
+	push	dword $buf2, dword $fp
+	call	io.write
+	jc	.error
+
+;; Print latitude
+	;setup
+	mov	esi, $locale
+	add	esi, Locale.latitude
+	
+	;format
+	push	dword $buf1, esi
+	call	geo.format_coord
+	
+	;print
+	push	dword $buf1, dword $fp
+	call	io.write
+	jc	.error
+
+;; Print spaces
+	;fill $buf1 with spaces
+	push	' ', 5, $buf1
+	call	str.fill
+	
+	;print
+	push	dword $buf1, dword $fp
+	call	io.write
+	jc	.error
+	
+;; Print longitude
+	;setup
+	mov	esi, $locale
+	add	esi, Locale.longitude
+	
+	push	dword $buf1, esi
+	call	geo.format_coord
+	
+	;print
+	push	dword $buf1, dword $fp
+	call	io.write
+	jc	.error	
+
+	clc
+	jmp	.exit
+
+.error:
+	stc
+.exit:
+	pop	esi, edi, ecx
+	exit
+ENDPROC
+
+
+
 [segment .data]
 _geo_err1	db 27,"[1;31mDados inválidos!",27,"[0m",10, 0
 _geo_prompt1	db "    Nome                              : ", 0
@@ -210,4 +398,12 @@ _geo_prompt2	db "    Lat.  <graus, minutos, orientação>: ", 0
 _geo_prompt3	db "    Long. <graus, minutos, orientação>: ", 0
 
 [section .bss]
-_coord_buf	resb 255
+_coord_buf			resb 255
+
+_geo_print_locale_buffer1	resb 36
+_geo_print_locale_buffer2	resb 36
+
+_geo_format_coord_buffer1	resb 5
+_geo_format_coord_buffer2	resb 5
+
+%endif
