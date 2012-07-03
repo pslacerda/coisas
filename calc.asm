@@ -10,7 +10,7 @@
 global _start
 [section .text]
 _start:
-	clc
+	cld
 	push	_header1, STDOUT
 	call	io.write
 	
@@ -47,13 +47,13 @@ _start:
 	jmp	.interactive_mode
 
 .bulk_mode:
-	push	_buffer
+	push	_origin, _buffer
 	call	modes.bulk
 	jc	.error
 	jmp	.quit
 	
 .interactive_mode:
-	push	_buffer
+	push	_origin, _buffer
 	call	modes.interactive
 	jc	.error
 	jmp	.quit
@@ -72,7 +72,8 @@ _start:
 
 [section .data]
 _header1	db 27,"[1;32mUniversidade Federal da Bahia",10
-		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
+		db "MATA49 Programação de Software Básico",10,10
+		db "Cálculo de distâncias geodésicas",27,"[0m",10,10,0
 _err1		db 10,27,"[1;31mErro!",27,"[0m",10,0
 _prompt1	db "Informe a origem (↵ encerra): ", 10, 0
 _prompt2	db 10, "Arquivo de coordenadas ou destino (↵ encerra) : ", 0
