@@ -389,6 +389,43 @@ PROC geo.print_locale, 0, 8
 	exit
 ENDPROC
 
+;;;
+;;; geo.read_locale
+;;; 	Read a locale from a file. The file position indicator is set to the
+;;;	next locale.
+;;; args:
+;;;     + file descriptor
+;;;	+ output buffer, with 36 bytes
+;;; err:
+;;;	Set CF if reach end of file or other errors.
+;;;
+PROC geo.read_locale, 0, 12
+
+	%define $fd	[ebp + 8]
+	%define $output [ebp + 12]
+	
+	push	36, dword $output, dword $fd
+	call	sys.read
+	jc	.error
+	clc
+	jmp	.exit
+.error:
+	stc
+.exit:
+	exit
+ENDPROC
+
+;;;
+;;; geo.compute_distances
+;;; 	Compute distances between two locales.
+;;; args:
+;;;     + first locale
+;;;	+ second locale
+;;;
+PROC geo.compute_distance, 0, 4
+	mov	eax, 42
+	exit
+ENDPROC
 
 
 [segment .data]
