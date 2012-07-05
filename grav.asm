@@ -4,7 +4,7 @@
 %include "sys.asm"
 %include "io.asm"
 
-%include "geo.asm"
+%include "utils.asm"
 
 global _start
 [section .text]

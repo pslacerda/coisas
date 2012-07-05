@@ -5,6 +5,12 @@
 %include "io.asm"
 %include "str.asm"
 
+%imacro PRINT 2
+	push	%1, %2
+	call	io.write
+	jc	.error
+%endmacro
+
 [section .text]
 ;;;
 ;;; geo.read_coord

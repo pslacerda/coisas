@@ -3,7 +3,7 @@
 %include "sys.asm"
 %include "io.asm"
 
-%include "geo.asm"
+%include "utils.asm"
 %include "bulk.asm"
 %include "interactive.asm"
 
@@ -13,6 +13,7 @@ _start:
 	cld
 	push	_header1, STDOUT
 	call	io.write
+	jc	.error
 	
 .ask_origin:
 	;; Write prompt
@@ -71,7 +72,7 @@ _start:
 	call	sys.exit
 
 [section .data]
-_header1	db 27,"[1;32mUniversidade Federal da Bahia",10
+_header1	db 27,"[1;32m", "Universidade Federal da Bahia",10
 		db "MATA49 Programação de Software Básico",10,10
 		db "Cálculo de distâncias geodésicas",27,"[0m",10,10,0
 _err1		db 10,27,"[1;31mErro!",27,"[0m",10,0

@@ -23,6 +23,8 @@ PROC modes.bulk, 8, 8
 	;variables
 	%define $inf		[ebp - 4]
 	%define $outf		[ebp - 8]
+	
+	;aliases 
 	%define $buf1		_bulk_buffer1
 	%define $buf2		_bulk_buffer2
 	
@@ -100,7 +102,7 @@ PROC modes.bulk, 8, 8
 	call	geo.read_locale
 	jc	.error
 	cmp	eax, 36
-	jl	.end_of_locales
+	jl	.close_files
 	
 	;compute distance
 	push	dword $buf1, dword $origin
@@ -131,7 +133,17 @@ PROC modes.bulk, 8, 8
 	;loooop!
 	jmp	.distances_loop
 	
-.end_of_locales:
+.close_files:
+	push	dword $inf
+	call	sys.close
+	jc	.error
+	
+	cmp	dword $outf, STDOUT
+	je	
+
+.ask_new_locale:
+		
+	
 	clc
 	jmp	.quit
 .error:
