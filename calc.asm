@@ -60,8 +60,7 @@ _start:
 					; for interactive
 ;; Enter in bulk mode
 .bulk_mode:
-	push	_calc_buffer	; input filename
-	push	_calc_origin	; origin locale
+	push	_calc_origin, _calc_buffer
 	call	modes.bulk
 	
 	jc	.error
@@ -69,8 +68,8 @@ _start:
 
 ;; Enter in interactive mode	
 .interactive_mode:
-	push	_calc_buffer	; name of destination city
 	push	_calc_origin	; origin locale
+	push	_calc_buffer	; name of destination city
 	call	modes.interactive
 	
 	jc	.error
@@ -92,7 +91,6 @@ _start:
 	push	ebx
 	call	sys.exit
 
-[section .data]
 [section .bss]
 _calc_origin	resb 36
-_calc_buffer	resd 1
+_calc_buffer	resd 255
