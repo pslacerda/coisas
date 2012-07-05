@@ -1,80 +1,93 @@
+;;;
+;;;
+;;; grav.asm
+;;;	Write geographic coordinates to a file.
+;;;
+;;;
 
 %include "macros.inc"
-
 %include "sys.asm"
 %include "io.asm"
 
+%include "data.inc"
 %include "utils.asm"
 
 global _start
+
 [section .text]
 _start:
 	clc
-	push	_header1, STDOUT
+	push	GRAV_FANCY_PROGRAM_HEADER, STDOUT
 	call	io.write
 	jc	.error
 	
-.ask_filename:
-	;; Write prompt
-    	push	_prompt1, STDOUT
+;; Ask filename
+	;write prompt
+    	push	GRAV_FILENAME_PROMPT, STDOUT
     	call	io.write
     	jc	.error
-    	;; Read filename
+    	
+    	;read filename
     	push	255, _filename, STDIN
     	call	io.readln
     	jc	.error
-    	;; No filename given, quit
-    	cmp	eax, 1
-    	je	.quit
     	
-.create_file:
+    	; exit if no filename given
+    	cmp	eax, 1
+    	je	.exit
+    	
+;; Create output file
+	;create
 	push	S_IRUSR | S_IWUSR, _filename
 	call	sys.creat
 	jc	.error
-	mov	[_filehandle], eax
+	
+	;save file descriptor
+	mov	edx, eax
 
+;; Ask locale
 .ask_locale:
-	;; Write header
-	push	_header2, STDOUT
+	;write header
+	push	GRAV_NEW_LOCALE_HEADER, STDOUT
 	call	io.write
 	jc	.error
 	
+	;ask
 	push	_locale
 	call	geo.ask_locale
 	jc	.error
-	jo	.quit		; no local given
+	jo	.exit
 
-.write_file:
-	push	36, _locale, dword [_filehandle]
+	;write locale to output file
+	push	Locale_SIZE, _locale, edx
 	call	sys.write
 	jc	.error
-	;; Continue to next locale
+	
+	;continue to next locale
 	jmp	.ask_locale
 
 
-.quit:
-	mov	ebx, 0
-	jmp	.terminate
-.error:
-	mov	ebx, 1
-	push	_err1, STDERR
-	call	io.write
-.terminate:
-	push	dword [_filehandle]
+.exit:
+	;close output file
+	push	edx
 	call	sys.close
 	
+	;no problems so far
+	mov	ebx, 0
+	jmp	.terminate
+
+.error:
+	;something gone wrong
+	mov	ebx, 1
+	push	ERR_MSG, STDERR
+	call	io.write
+
+.terminate:
 	push	ebx
 	call	sys.exit
 
 
-[section .data]
-_header1	db 27,"[1;32mUniversidade Federal da Bahia",10
-		db "MATA49 Programação de Software Básico",27,"[0m",10,10, 0
-_header2	db 27,"[1;34m  Nova localidade (↵ encerra):",27,"[0m",10, 0
-_err1		db 10,27,"[1;31mErro!",27,"[0m",10,0
-_prompt1	db "Arquivo de coordenadas (↵ encerra): ", 0
-
 [section .bss]
 _filename	resb 255
-_filehandle	resd 1
 _locale		resb 36
+
