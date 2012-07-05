@@ -1,5 +1,5 @@
-%ifndef __GEO
-%define __GEO
+%ifndef __HELPERS
+%define __HELPERS
 
 %include "macros.inc"
 %include "io.asm"
