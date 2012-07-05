@@ -3,7 +3,7 @@
 
 %include "io.asm"
 %include "sys.asm"
-%include "geo.asm"
+%include "helpers.asm"
 
 [section .text]
 
@@ -16,34 +16,24 @@
 ;;; 
 PROC modes.interactive, 4, 8
 	
-	;parameters
-	%define $dname	[ebp + 8]	;destine name
-	%define $org	[ebp + 12]	;origin locale
-	
-	;variables
-	%define $dst	[ebp - 4]	;destination locale
-	
-	;aliases
-	%define $_buffer1		_inter_buffer2
-	%define $_buffer2		_inter_buffer3
-	%define $_latitude_prompt	_inter_prompt1
-	%define $_longitude_prompt	_inter_prompt2
-	%define $_program_header	_header1
-	%define $_origin_header		_inter_header1
-	%define $_destination_header	_inter_header2
-	
+	push	ebx, ecx, edx, edi, esi
+;;
+;;	ECX: Origin pointer
+;;	EDX: Destination pointer
+;;
+
 ;; Setup
-	mov	eax, _inter_buffer1
-	mov	$dst, eax
+	mov	ecx, [ebp + 12]
+	mov	edx, _inter_buf1
 	
-	;clear $dst locale
-	push	0, 36, dword $dst
+	;clear destination
+	push	0, 36, edx
 	call	str.fill
 
-;; Store destine name
+;; Store destination name
 	;setup
-	mov	esi, $dname
-	mov	edi, $dst
+	mov	esi, [ebp + 8]
+	mov	edi, edx
 	add	edi, Locale.name
 	
 	;store
@@ -53,10 +43,10 @@ PROC modes.interactive, 4, 8
 ;; Ask latitude
 .ask_latitude:
 	;setup
-	mov	edi, $dst
+	mov	edi, edx
 	add	edi, Locale.latitude
 	
-	print	$_latitude_prompt, STDOUT
+	print	HELPERS_LOCALE_LATITUDE_PROMPT, STDOUT
 	
 	;read coordinate
 	push	'n', 's', 90, edi, STDIN
@@ -69,17 +59,17 @@ PROC modes.interactive, 4, 8
 	jmp	.ask_longitude
 
 .latitude_error:
-	print	_inter_err1, STDOUT
+	print	ERR_INVALID_DATA, STDOUT
 	jmp	.ask_latitude
 
 
 ;; Ask longitude
 .ask_longitude:
 	;setup
-	mov	edi, $dst
+	mov	edi, edx
 	add	edi, Locale.longitude
 	
-	print	$_longitude_prompt, STDOUT
+	print	HELPERS_LOCALE_LONGITUDE_PROMPT, STDOUT
 	
 	;read coordinate
 	push	'e', 'w', 180,  edi, STDIN
@@ -92,7 +82,7 @@ PROC modes.interactive, 4, 8
 	jmp	.write_header
 	
 .longitude_error:
-	print	$_longitude_prompt, STDOUT
+	print	ERR_INVALID_DATA, STDOUT
 	jmp	.ask_longitude
 
 
@@ -102,17 +92,17 @@ PROC modes.interactive, 4, 8
 	call	term.clear
 	jc	.error
 	
-	print	$_program_header, STDOUT
+	print	CALC_FANCY_PROGRAM_HEADER, STDOUT
 
 
 ;; Print origin
 .print_origin:
 	;setup
-	mov	esi, $org
+	mov	esi, ecx
 	add	esi, Locale
 	
 	;print header
-	print	$_origin_header, STDOUT
+	print	CALC_ORIGIN_HEADER, STDOUT
 	
 	;print origin
 	push	esi, STDOUT
@@ -120,18 +110,17 @@ PROC modes.interactive, 4, 8
 	jc	.error
 	
 	;print two new lines
-	mov	dword [$_buffer1], 10 << 8 | 10
-	push	dword $_buffer1, STDOUT
-	call	io.write
+	mov	dword [_inter_buf2], 10 << 8 | 10
+	print	_inter_buf2, STDOUT
 	
-;; Printe destinations
+;; Print destinations
 .print_destinations:
 	;setup
-	mov	esi, $dst
+	mov	esi, edx
 	add	esi, Locale
 	
 	;print header
-	print $_destination_header, STDOUT
+	print CALC_DESTINATION_HEADER, STDOUT
 	
 	;print destinatin
 	push	esi, STDOUT
@@ -139,24 +128,24 @@ PROC modes.interactive, 4, 8
 	jc	.error
 	
 	;compute distance
-	push	dword $dst, dword $org
+	push	edx, ecx
 	call	geo.compute_distance
 	mov	ebx, eax
 	
 	;convert distance to string
-	push	$_buffer1, ebx
+	push	_inter_buf2, ebx
 	call	str.itoa
 	jc	.error
 	
 	;format distance
-	push	' ', 18, $_buffer1
+	push	' ', 18, _inter_buf3
 	call	str.fill
 	
-	push	$_buffer1, $_buffer2
+	push	_inter_buf2, _inter_buf3
 	call	str.rjust
 	jc	.error
 	
-	push	$_buffer2, STDOUT
+	push	_inter_buf3, STDOUT
 	call	io.writeln
 	jc	.error
 	
@@ -165,22 +154,14 @@ PROC modes.interactive, 4, 8
 .error:
 	stc
 .exit:
+	pop	esi, edi, ebx
 	exit
 ENDPROC
 
-[section .data]
-_inter_err1	db 27,"[1;31mDados inválidos!",27,"[0m",10, 0
-
-_inter_header1	db "Origem                        Latitude   Longitude",10,0
-_inter_header2	db "Destino                       Latitude   Longitude   Distância (km)",10,0
-
-_inter_prompt1	db "    Lat.  <graus, minutos, orientação>: ", 0
-_inter_prompt2	db "    Long. <graus, minutos, orientação>: ", 0
-
 [section .bss]
-_inter_buffer1		resb 36
-_inter_buffer2		resb 36
-_inter_buffer3		resb 36
+_inter_buf1		resb 36
+_inter_buf2		resb 36
+_inter_buf3		resb 36
 
 
 %endif

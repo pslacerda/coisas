@@ -147,7 +147,7 @@ PROC modes.bulk, 0, 8
 	jc	.error
 	
 	cmp	ecx, STDOUT
-	je	.decide_
+	je	.exit
 	
 	;close input file
 	push	ecx
