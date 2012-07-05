@@ -4,6 +4,7 @@
 ;;;
 ;;; Memory layout for store coordinates
 ;;;
+%define Coordinate_SIZE 3
 struc Coordinate
 	.degrees:	resb 1
 	.minutes:	resb 1
@@ -13,6 +14,7 @@ endstruc
 ;;;
 ;;; Memory layout for store locales
 ;;;
+%define Locale_SIZE 36
 struc Locale
 	.name:		resb	30
 	.latitude:	resb	3  ; Coordinate instance
