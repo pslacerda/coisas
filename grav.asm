@@ -10,7 +10,7 @@
 %include "io.asm"
 
 %include "data.inc"
-%include "utils.asm"
+%include "helpers.asm"
 
 global _start
 
@@ -69,7 +69,7 @@ _start:
 
 .exit:
 	;close output file
-	push	edx
+	push	ebx
 	call	sys.close
 	
 	;no problems so far
