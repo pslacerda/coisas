@@ -5,6 +5,8 @@
 %include "io.asm"
 %include "str.asm"
 
+%include "data.inc"
+
 %imacro PRINT 2
 	push	%1, %2
 	call	io.write
@@ -19,8 +21,8 @@
 ;;;     + file descriptor
 ;;;     + pointer to structure
 ;;;     + max degree
-;;;	+ orientation ('N'| 'E')
-;;;	+ orientation ('S', 'W')
+;;;	+ orientation ('N' | 'E')
+;;;	+ orientation ('S' | 'W')
 ;;; ret:
 ;;;     Nothing
 ;;; err:
@@ -142,7 +144,7 @@ PROC geo.ask_locale, 0, 4
 
 	;;; Ask locale name
 	;; Write prompt
-	push	_geo_prompt1, STDOUT
+	push	HELPERS_LOCALE_NAME_PROMPT, STDOUT
 	call	io.write
 	jc	.error
 	;; Read locale name
@@ -155,7 +157,7 @@ PROC geo.ask_locale, 0, 4
 
 .ask_latitude:
 	;; Write prompt
-	push	_geo_prompt2, STDOUT
+	push	HELPERS_LOCALE_LATITUDE_PROMPT, STDOUT
 	call	io.write
 	jc	.error
 	
@@ -172,14 +174,14 @@ PROC geo.ask_locale, 0, 4
 	jmp	.ask_longitude
 
 .latitude_error:
-	push	_geo_err1, STDOUT
+	push	ERR_INVALID_DATA, STDOUT
 	call	io.write
 	jc	.error
 	jmp	.ask_latitude
 
 .ask_longitude:
 	;; Write prompt
-	push	_geo_prompt3, STDOUT
+	push	HELPERS_LOCALE_LONGITUDE_PROMPT, STDOUT
 	call	io.write
 	jc	.error
 	
@@ -195,7 +197,7 @@ PROC geo.ask_locale, 0, 4
 	jmp	.quit
 	
 .longitude_error:
-	push	_geo_err1, STDOUT
+	push	ERR_INVALID_DATA, STDOUT
 	call	io.write
 	jc	.error
 	jmp	.ask_longitude
@@ -221,7 +223,7 @@ ENDPROC
 ;;; ret:
 ;;;	Pointer to output buffer
 ;;;
-PROC geo.format_coord, 0, 4
+PROC geo.format_coord, 0, 8
 	
 	%define $coord		[ebp + 8]
 	%define $output		[ebp + 12]
@@ -405,7 +407,7 @@ ENDPROC
 ;;; err:
 ;;;	Set CF if reach end of file or other errors.
 ;;;
-PROC geo.read_locale, 0, 12
+PROC geo.read_locale, 0, 8
 
 	%define $fd	[ebp + 8]
 	%define $output [ebp + 12]
@@ -428,17 +430,11 @@ ENDPROC
 ;;;     + first locale
 ;;;	+ second locale
 ;;;
-PROC geo.compute_distance, 0, 4
+PROC geo.compute_distance, 0, 8
 	mov	eax, 42
 	exit
 ENDPROC
 
-
-[segment .data]
-_geo_err1	db 27,"[1;31mDados inválidos!",27,"[0m",10, 0
-_geo_prompt1	db "    Nome                              : ", 0
-_geo_prompt2	db "    Lat.  <graus, minutos, orientação>: ", 0
-_geo_prompt3	db "    Long. <graus, minutos, orientação>: ", 0
 
 [section .bss]
 _coord_buf			resb 255
