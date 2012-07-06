@@ -3,7 +3,6 @@
 
 %include "macros.inc"
 
-
 ;;;
 ;;; str.len
 ;;; 	Calculate the length of a NULL terminated string.
@@ -342,15 +341,11 @@ ENDPROC
 ;;; ret:
 ;;;	Pointer to string, same as second parameter.
 ;;;
-PROC str.ftoa, 0, 8
-	push	dword [ebp + 12], dword [ebp + 8]
+PROC str.ftoa, 4, 8
+	fld	dword [ebp + 8]
+	fist	dword [ebp - 4]
+	push	dword [ebp + 12], dword [ebp - 4]
 	call	str.itoa
-	jc	.error
-	clc
-	jmp	.exit
-.error:
-	stc
-.exit:
 	exit
 ENDPROC
 %endif
