@@ -4,6 +4,7 @@
 %include "macros.inc"
 %include "io.asm"
 %include "str.asm"
+%include "math.asm"
 
 %include "data.inc"
 
@@ -433,6 +434,65 @@ ENDPROC
 PROC geo.compute_distance, 0, 8
 	mov	eax, 42
 	exit
+ENDPROC
+
+
+;;;
+;;; geo.dmd2rd
+;;;	Converts coordinates in degree/minute/direction format to radians
+;;;	degrees.
+;;; args:
+;;;	+ degree
+;;;	+ minutes
+;;;	+ direction
+;;; example:
+;;;	36°57'N -> 36.9525
+;;;	110°4'W -> -110.0725
+;;;
+PROC geo.dmd2rd, 12, 12
+	
+	%define $deg	[ebp + 8]
+	%define $min	[ebp + 12]
+	%define $dir	[ebp + 16]
+	
+	%define $n60	[ebp - 4]
+	%define $tmp	[ebp - 8]
+	%define $n180	[ebp - 12]
+	
+	mov	dword $n60, 60
+	mov	dword $n180, 180
+	
+	;st0 = deg + min/60;
+	fild	dword $min
+	fild	dword $n60
+	fdiv
+	fild	dword $deg
+	fadd
+	
+	; if (dir == 'N' | dir == 'E') do nothing;
+	cmp	dword $dir, 'N'
+	je	.convert_to_radians
+	
+	cmp	dword $dir, 'E'
+	je	.convert_to_radians
+	
+	; else st0 = -st0;
+	fchs
+
+.convert_to_radians:
+	fld	dword [PI]
+	fmul
+	fild	dword $n180
+	fdiv
+	
+	;return
+	fst	dword $tmp
+	mov	eax, $tmp
+	exit
+ENDPROC
+
+
+PROC geo.spheric_distance, 0, 12
 ENDPROC
 
 
