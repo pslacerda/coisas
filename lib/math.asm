@@ -25,8 +25,9 @@ PROC math.great_circle_distance, 12, 20
 	%define $sinLatA	[ebp - 8]
 	%define $tmp		[ebp - 12]
 	
+	finit
 	
-	;st0 := cos(Δlng) = cos(abs(abs(A.lat) - abs(B.lat)))
+	;st0 := cos(Δlng) = cos(abs(abs(A.lng) - abs(B.lng)))
 	fld	dword $lngB
 	fabs
 	fld	dword $lngA
@@ -50,7 +51,7 @@ PROC math.great_circle_distance, 12, 20
 	fsin
 	fmul
 	fadd
-	
+.bla:
 	; source: http://216.92.238.133/Webster/AoA/DOS/ch14/CH14-6.html
 	; X means st0
 	; st0 := acos(st0) = atan(sqrt((1-st0*st0)/(st0*st0)))
@@ -63,6 +64,10 @@ PROC math.great_circle_distance, 12, 20
 	fsqrt		;Compute sqrt((1-X**2)/X**2).
 	fld1		;To compute full arctangent.
         fpatan		;Compute atan of the above.
+.b:        
+        ;st0 := st0 * radius
+        fild	dword $radius
+        fmul
         
         fld	dword $tmp
         mov	eax, $tmp
