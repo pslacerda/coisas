@@ -129,12 +129,12 @@ PROC modes.interactive, 4, 8
 	
 	;compute distance
 	push	edx, ecx
-	call	geo.compute_distance
+	call	geo.locale_distance
 	mov	ebx, eax
 	
 	;convert distance to string
 	push	_inter_buf2, ebx
-	call	str.itoa
+	call	str.ftoa
 	jc	.error
 	
 	;format distance

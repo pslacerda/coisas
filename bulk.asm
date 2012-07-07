@@ -118,11 +118,11 @@ PROC modes.bulk, 0, 8
 
 	;compute distance
 	push	_bulk_buf1, dword $origin
-	call	geo.compute_distance
+	call	geo.locale_distance
 	
 	;convert distance to string
 	push	_bulk_buf1, eax
-	call	str.itoa
+	call	str.ftoa
 	jc	.error
 	
 	;format distance
