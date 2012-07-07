@@ -425,19 +425,6 @@ PROC geo.read_locale, 0, 8
 ENDPROC
 
 ;;;
-;;; geo.compute_distances
-;;; 	Compute distances between two locales.
-;;; args:
-;;;     + first locale
-;;;	+ second locale
-;;;
-PROC geo.compute_distance, 0, 8
-	mov	eax, 42
-	exit
-ENDPROC
-
-
-;;;
 ;;; geo.dmd2rd
 ;;;	Converts coordinates in degree/minute/direction format to radians
 ;;;	degrees.
@@ -480,7 +467,7 @@ PROC geo.dmd2rd, 12, 12
 	fchs
 
 .convert_to_radians:
-	fld	dword [PI]
+	fldpi
 	fmul
 	fild	dword $n180
 	fdiv
@@ -491,8 +478,67 @@ PROC geo.dmd2rd, 12, 12
 	exit
 ENDPROC
 
-
-PROC geo.spheric_distance, 0, 12
+;;;
+;;; geo.locale_distance
+;;;	Compute the from locale A to B.
+;;; args:
+;;;	+ latitude of A in radians
+;;;	+ longitude of A in radians
+;;;	+ latitude of B in radians
+;;;	+ longitude of B in radians
+;;;	+ sphere radius
+;;; ret:
+;;;	Returns the distance.
+;;;
+PROC geo.locale_distance, 16, 8
+	
+	mov	eax, 42
+	exit
+	
+	%define $latA	[ebp - 4]
+	%define $lngA	[ebp - 8]
+	%define $latB	[ebp - 12]
+	%define $lngB	[ebp - 16]
+	
+	;convert A latitude to radians
+	mov	esi, dword [ebp + 8]
+	add	esi, Locale.latitude
+	call	.convert_coordinate_to_radian
+	mov	$latA, eax
+	
+	;convert A longitude to radians
+	mov	esi, dword [ebp + 8]
+	add	esi, Locale.longitude
+	call	.convert_coordinate_to_radian
+	mov	$lngA, eax
+	
+	;convert B latitude to radians
+	mov	esi, dword [ebp + 12]
+	add	esi, Locale.latitude
+	call	.convert_coordinate_to_radian
+	mov	$latB, eax
+	
+	;convert B longitude to radians
+	mov	esi, dword [ebp + 12]
+	add	esi, Locale.longitude
+	call	.convert_coordinate_to_radian
+	mov	$lngB, eax
+	
+	;compute distance
+	mov	eax, 6371	;earth radius
+	push	eax, dword $lngB, dword $latB, dword $lngA, dword $latA
+	call	math.great_circle_distance
+	
+	exit
+	
+.convert_coordinate_to_radian:
+	movzx	eax, byte [esi + Coordinate.degrees]
+	movzx	ebx, byte [esi + Coordinate.minutes]
+	movzx	ecx, byte [esi + Coordinate.orientation]
+	push	ecx, ebx, eax
+	call	geo.dmd2rd
+	ret
+	
 ENDPROC
 
 
