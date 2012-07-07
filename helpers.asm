@@ -234,6 +234,9 @@ PROC geo.format_coord, 0, 8
 	
 	push	edi, esi
 	
+	push	0, 9, dword $output
+	call	str.fill
+	
 ;; Format degrees
 	;setup
 	mov	esi, $coord
@@ -340,6 +343,7 @@ PROC geo.print_locale, 0, 8
 	;fill $buf2 with spaces
 	push	' ', 31, $buf2
 	call	str.fill
+	mov	byte [$buf2 + 31], 0
 	
 	;format
 	push	$buf1, $buf2
@@ -482,18 +486,15 @@ ENDPROC
 ;;; geo.locale_distance
 ;;;	Compute the from locale A to B.
 ;;; args:
-;;;	+ latitude of A in radians
-;;;	+ longitude of A in radians
-;;;	+ latitude of B in radians
-;;;	+ longitude of B in radians
-;;;	+ sphere radius
+;;;	+ locale A
+;;;	+ locale B
 ;;; ret:
 ;;;	Returns the distance.
 ;;;
 PROC geo.locale_distance, 16, 8
 	
-	mov	eax, 42
-	exit
+	
+	push	ebx, ecx, edx, edi, esi
 	
 	%define $latA	[ebp - 4]
 	%define $lngA	[ebp - 8]
@@ -526,9 +527,16 @@ PROC geo.locale_distance, 16, 8
 	
 	;compute distance
 	mov	eax, 6371	;earth radius
-	push	eax, dword $lngB, dword $latB, dword $lngA, dword $latA
+	mov	ebx, dword $lngB
+	mov	ecx, dword $latB
+	mov	edx, dword $lngA
+	mov	edi, dword $latA
+.bla:
+	push	eax, ebx, ecx, edx, edi
+;	push	eax, dword $lngB, dword $latB, dword $lngA, dword $latA
 	call	math.great_circle_distance
 	
+	pop	esi, edi, edx, ecx, ebx
 	exit
 	
 .convert_coordinate_to_radian:
