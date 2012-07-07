@@ -106,7 +106,7 @@ ENDPROC
 ;;;     + first string
 ;;;	+ second string
 ;;;
-PROC str.rjust, 4, 8
+PROC str.rjust, 8, 8
 	%define $str1	[ebp + 8]
 	%define $str2	[ebp + 12]
 	
