@@ -526,7 +526,7 @@ PROC geo.locale_distance, 16, 8
 	mov	$lngB, eax
 	
 	;compute distance
-	mov	eax, 6371	;earth radius
+	mov	eax, 0x45C71800	;earth radius 6371 in decimal
 	mov	ebx, dword $lngB
 	mov	ecx, dword $latB
 	mov	edx, dword $lngA
