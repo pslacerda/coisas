@@ -72,7 +72,7 @@ CALC_ORIGIN_HEADER db ""
 	db "Origem                        Latitude   Longitude",10,0
 
 CALC_DESTINATION_HEADER db ""
-	db "Destino                       Latitude   Longitude   Distância (km)",10,0
+	db "Destino                       Latitude   Longitude   Distância (±0.5 km)",10,0
 	
 BULK_OUTPUT_FILE_PROMPT db ""
 	db "Arquivo para salvar relatório (↵ STDOUT): ",0

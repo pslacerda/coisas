@@ -126,7 +126,7 @@ PROC modes.bulk, 0, 8
 	jc	.error
 	
 	;format distance
-	push	' ', 18, _bulk_buf2
+	push	' ', 23, _bulk_buf2
 	call	str.fill
 	
 	push	_bulk_buf1, _bulk_buf2
