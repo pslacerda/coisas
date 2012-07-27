@@ -27,50 +27,47 @@ PROC math.great_circle_distance, 12, 20
 	
 	finit
 	
-	;st0 := cos(Δlng) = cos(abs(abs(A.lng) - abs(B.lng)))
+	
+	;ST0 := cos(abs(B.lng - A.lng))
 	fld	dword $lngB
-	fabs
 	fld	dword $lngA
-	fabs
-	fsub
+	fsubp
 	fabs
 	fcos
 	
-	;st0 := cos(A.lat) * cos(B.lat) * st0
-	fld	dword $latA
-	fcos
+	;ST0 := ST0 * cos(B.lat)
 	fld	dword $latB
 	fcos
-	fmul
-	fmul
+	fmulp
 	
-	;st0 := sin(A.lat) * sin(B.lat) + st0
+	;ST0 := ST0 * cos(A.lat)
 	fld	dword $latA
-	fsin
+	fcos
+	fmulp
+	
+	;ST0 := ST0 + sin(A.lat) * sin(B.lat)
 	fld	dword $latB
 	fsin
-	fmul
-	fadd
-.bla:
-	; source: http://216.92.238.133/Webster/AoA/DOS/ch14/CH14-6.html
-	; X means st0
-	; st0 := acos(st0) = atan(sqrt((1-st0*st0)/(st0*st0)))
-	fld     st0	;Duplicate X on tos.
-	fmul		;Compute X**2.
-	fld	st0	;Duplicate X**2 on tos.
-	fld1		;Compute 1-X**2.
+	fld	dword $latA
+	fsin
+	fmulp
+	faddp
+	
+	;ST0 := acos(ST0)
+	fld	st0
+	fmul	st0, st0
+	fld1
 	fsubr
-	fdivr		;Compute (1-x**2)/X**2.
-	fsqrt		;Compute sqrt((1-X**2)/X**2).
-	fld1		;To compute full arctangent.
-        fpatan		;Compute atan of the above.
-.b:        
-        ;st0 := st0 * radius
-        fild	dword $radius
-        fmul
-        
-        fld	dword $tmp
+	fsqrt
+	fxch
+	fpatan
+	
+	;ST0 := ST0 * radius
+	fld	dword $radius
+	fmulp
+	
+.bla:
+        fst	dword $tmp
         mov	eax, $tmp
-        
 	exit	
 ENDPROC
