@@ -6,6 +6,7 @@ Coisas do Passado
 * **gauss.c**  _(2010, 1)_: Resolve sistemas de equações usando o método de gauss
 * **cramer.f** _(2010, 2)_: Resolve sistemas de equações usando a regra de Cramer (lixo)
 * **SimpleHTTPServer** _(????, ?)_: Simplório servidor HTTP
+* **mata49** _(2012,1)_: calcula distâncias entre cidades da terra
 
 (ano, número) = (ano, semestre)
 
