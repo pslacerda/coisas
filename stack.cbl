@@ -10,8 +10,25 @@
        01 CblStack.
            02 CblStackItems OCCURS 100 TIMES.
                03 CblStackPerformItem PIC X(32).
-
-
+      
+      *****************************************************************
+      ** Expected output                                              *
+      *****************************************************************
+      *P1
+      *P2
+      *P3
+      *P4
+      *---------- BEGIN PERFORM STACK TRACE ---------
+      *
+      *Perform4
+      *Perform2
+      *Perform1
+      *Main
+      *---------- END PERFORM STACK TRACE ---------
+      *---------- BEGIN PERFORM STACK TRACE ---------
+      *Main
+      *---------- END PERFORM STACK TRACE ---------
+      
        PROCEDURE                       DIVISION.
        Main                            SECTION.
            MOVE "Main" TO CblStackItem
