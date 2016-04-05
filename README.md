@@ -7,6 +7,7 @@ Coisas do Passado
 * **cramer.f** _(2010, 2)_: Resolve sistemas de equações usando a regra de Cramer (lixo)
 * **SimpleHTTPServer** _(????, ?)_: Simplório servidor HTTP
 * **mata49** _(2012,1)_: calcula distâncias entre cidades da terra
+* **stack.cbl** _(2016,1)_: implementação simplória de uma stack trace em COBOL
 
 (ano, número) = (ano, semestre)
 
