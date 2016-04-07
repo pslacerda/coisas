@@ -5,7 +5,6 @@
        77 CblStackTopIdx   PIC 99 VALUE 1.
        77 CblStackPrintIdx PIC 99.
        77 CblStackItem     PIC X(32).
-       77 CblStackProcPtr  USAGE PROCEDURE-POINTER.
 
        01 CblStack.
            02 CblStackItems OCCURS 100 TIMES.
